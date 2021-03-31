@@ -12,9 +12,9 @@ export class LoginComponent {
 
   username: string;
   password: string;
-  loginError: boolean;
   cadastrando: boolean;
   mensagemSucesso: string;
+  errors: String[];
 
   constructor(
     private router: Router,
@@ -23,7 +23,15 @@ export class LoginComponent {
 
 
   onSubmit() {
-    this.router.navigate(['/home']);
+    this.authService
+      .tryLogin(this.username, this.password)
+      .subscribe(response => {
+        console.log(response);
+        this.router.navigate(['/home']);
+      }, error => {
+        this.errors = ['Usuário e/ou senha incorreto(s).'];
+      })
+    
   }
 
   prepararCadastrar(event): void {
@@ -42,10 +50,13 @@ export class LoginComponent {
     this.authService.save(usuario)
     .subscribe(response => {
       this.mensagemSucesso = 'Cadastro realizado com sucesso" Efetue o login';
-      this.loginError = false;
-    }, error => {
+      this.errors = [];
+      this.cadastrando = false;
+      this.username = '';
+      this.password = '';
+    }, errorResponse => {
       this.mensagemSucesso = null;
-      this.loginError = true;
+      this.errors = errorResponse.error.errors;
     })
   }
 }
