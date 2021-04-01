@@ -1,4 +1,7 @@
 export const environment = {
     production: true,
-    apiURLBase: 'undefined'
+    apiURLBase: 'undefined',
+    clientId: 'undefined',
+    clientSecret: 'undefined',
+    obterTokenUrl: 'undefined'
 };
