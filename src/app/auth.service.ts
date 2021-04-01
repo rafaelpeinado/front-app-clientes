@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { JwtHelperService } from '@auth0/angular-jwt';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Usuario } from './login/usuario';
@@ -14,10 +15,42 @@ export class AuthService {
   private tokenURL: string = environment.apiURLBase + environment.obterTokenUrl;
   private clientId: string = environment.clientId;
   private clientSecret: string = environment.clientSecret;
+  private jwtHelper: JwtHelperService = new JwtHelperService();
 
   constructor(
     private http: HttpClient
   ) { }
+
+  getToken() {
+    const tokenString = localStorage.getItem('access_token');
+    if(tokenString) {
+      const token = JSON.parse(tokenString).access_token;
+      return token;
+    }
+    return null;
+  }
+
+  logoutSession() {
+    localStorage.removeItem('access_token');
+  }
+
+  getAuthenticatedUser() {;
+    const token = this.getToken();
+    if(token) {
+      const usuario = this.jwtHelper.decodeToken(token).user_name;
+      return usuario;
+    }
+    return null;
+  }
+
+    isAuthenticated(): boolean {
+      const token = this.getToken();
+      if(token) {
+        const expired = this.jwtHelper.isTokenExpired(token);
+        return !expired;
+      }
+      return false;
+    }
 
     save(usuario: Usuario): Observable<any> {
       return this.http.post<any>(this.apiURL, usuario);
